@@ -1,4 +1,44 @@
-const API_URL = "https://nurse-regarding-editor-collect.trycloudflare.com/process-circuit";
+// ── API CONFIGURATION ─────────────────────────────────────────────
+const DEFAULT_API_URL = "https://xxx.trycloudflare.com/process-circuit";
+const apiUrlInput = document.getElementById('apiUrlInput');
+const apiApplyBtn = document.getElementById('apiApplyBtn');
+
+// Load saved URL from local storage, or fall back to default
+let currentApiUrl = localStorage.getItem('circuitApiUrl') || DEFAULT_API_URL;
+
+// Pre-fill the input box with the active base URL (hiding the endpoint for a cleaner look)
+if (apiUrlInput) {
+    apiUrlInput.value = currentApiUrl.replace(/\/process-circuit$/, '');
+}
+
+// Handle the Apply button click
+if (apiApplyBtn && apiUrlInput) {
+    apiApplyBtn.addEventListener('click', () => {
+        let val = apiUrlInput.value.trim();
+        
+        if (!val) {
+            // If empty, reset to default
+            currentApiUrl = DEFAULT_API_URL;
+            localStorage.removeItem('circuitApiUrl');
+        } else {
+            // Auto-append endpoint if missing
+            if (!val.endsWith('/process-circuit')) {
+                val = val.replace(/\/$/, '') + '/process-circuit';
+            }
+            currentApiUrl = val;
+            localStorage.setItem('circuitApiUrl', currentApiUrl); // Save for next time
+        }
+        
+        // Give satisfying visual feedback
+        const originalText = apiApplyBtn.textContent;
+        apiApplyBtn.textContent = 'Saved!';
+        apiApplyBtn.classList.add('success');
+        setTimeout(() => {
+            apiApplyBtn.textContent = originalText;
+            apiApplyBtn.classList.remove('success');
+        }, 1500);
+    });
+}
 
 // ── THEME ─────────────────────────────────────────────────────────
 const themeToggle  = document.getElementById('themeToggle');
@@ -97,7 +137,7 @@ function setEqMode(mode) {
 function toSymbolHtml(eq) {
     if (!eq) return '';
 
-    const tokenRegex = /\b(XNOR|xnor|NOR|nor|NAND|nand|XOR|xor|NOT|not|AND|and|OR|or)\b|([A-Za-z_][A-Za-z0-9_]*)|(\(|\))|([=])|(\d+)|([+\-·⊕⊙↑↓∧∨¬])/gi;
+    const tokenRegex = /\b(XNOR|xnor|NOR|nor|NAND|nand|XOR|xor|NOT|not|AND|and|OR|or)\b|([A-Za-z_][A-Za-z0-9_]*)|(\(|\))|([=])|(\d+)|([+\-·⊕⊙∧∨¬])/gi;
     const tokens = [];
     let m;
     while ((m = tokenRegex.exec(eq)) !== null) {
@@ -120,10 +160,10 @@ function toSymbolHtml(eq) {
                 out.push('<span class="op-sym"> ⊕ </span>');
             } else if (upper === 'XNOR' || tok === '⊙') {
                 out.push('<span class="op-sym"> ⊙ </span>');
-            } else if (upper === 'NAND' || tok === '↑') {
-                out.push('<span class="op-sym"> NAND </span>'); // Removed arrow
-            } else if (upper === 'NOR' || tok === '↓') {
-                out.push('<span class="op-sym"> NOR </span>');  // Removed arrow
+            } else if (upper === 'NAND') {
+                out.push('<span class="op-sym"> NAND </span>'); 
+            } else if (upper === 'NOR') {
+                out.push('<span class="op-sym"> NOR </span>');  
             } else if (upper === 'NOT' || tok === '¬') {
                 let j = i + 1;
                 if (j < endIdx) {
@@ -230,12 +270,11 @@ imageInput.addEventListener('change', () => {
 // Make the entire document accept file drops
 document.addEventListener('dragover', e => { 
     e.preventDefault(); 
-    dropzone.classList.add('dragover'); // Highlight the card when dragging anywhere on screen
+    dropzone.classList.add('dragover'); 
 });
 
 document.addEventListener('dragleave', e => { 
     e.preventDefault();
-    // Remove the highlight only if the mouse actually leaves the browser window
     if (!e.relatedTarget || e.relatedTarget.nodeName === "HTML") {
         dropzone.classList.remove('dragover'); 
     }
@@ -245,14 +284,13 @@ document.addEventListener('drop', e => {
     e.preventDefault();
     dropzone.classList.remove('dragover');
     
-    // Ensure an actual file was dropped
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        // If multiple files are dropped, this simply grabs the first one
         imageInput.files = e.dataTransfer.files;
         fileChip.textContent = `📎  ${imageInput.files[0].name}`;
         clearErr();
     }
 });
+
 // ── MAIN HANDLER ──────────────────────────────────────────────────
 uploadBtn.addEventListener('click', async e => {
     e.stopPropagation();
@@ -279,7 +317,8 @@ uploadBtn.addEventListener('click', async e => {
     form.append('image', file);
 
     try {
-        const res = await fetch(API_URL, { method: 'POST', body: form });
+        // Fetch from the active API URL
+        const res = await fetch(currentApiUrl, { method: 'POST', body: form });
         if (!res.ok) throw new Error(`Server error ${res.status}.`);
         const data = await res.json();
 

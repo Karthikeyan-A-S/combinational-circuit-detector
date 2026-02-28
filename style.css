@@ -129,7 +129,63 @@ body {
 .switch-label {
     font-size: 0.8rem; font-weight: 500; color: var(--text-2); min-width: 2.5rem;
 }
+/* ── API INPUT & BUTTON ───────────────────────────────── */
+.api-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-right: 1.5rem;
+}
 
+.api-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    width: 200px;
+    transition: all var(--fast);
+    outline: none;
+}
+
+.api-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+    background: var(--surface);
+}
+
+.api-input::placeholder { color: var(--text-3); }
+
+.api-apply-btn {
+    background: var(--surface2);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--fast);
+}
+
+.api-apply-btn:hover {
+    background: var(--surface);
+    color: var(--accent);
+    border-color: var(--border-hi);
+}
+
+/* Success state for visual feedback */
+.api-apply-btn.success {
+    background: rgba(52, 211, 153, 0.1);
+    color: var(--accent3);
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+@media (max-width: 600px) {
+    .api-input-wrapper { display: none; }
+}
 /* ── HERO ─────────────────────────────────────────────── */
 .hero {
     min-height: calc(100vh - 64px); margin-top: 64px;
