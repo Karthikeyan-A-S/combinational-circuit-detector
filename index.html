@@ -6,6 +6,7 @@
     <title>Logic Circuit Recognizer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,12 +36,11 @@
                 <span class="switch-label" id="toggle-label">Dark</span>
             </label>
         </div>
-
     </header>
 
     <section class="hero">
         <h1>Logic Circuit <em>Recognizer</em></h1>
-        <p class="hero-sub">Upload a hand-drawn schematic to extract equations, truth tables &amp; digital diagrams instantly.</p>
+        <p class="hero-sub">Upload or snap a hand-drawn schematic to extract equations, truth tables &amp; digital diagrams instantly.</p>
 
         <div class="upload-card" id="dropzone">
             <span class="uc-corner uc-tl"></span>
@@ -52,19 +52,26 @@
                 <div class="upload-icon-ring">
                     <span class="upload-icon">⚡</span>
                 </div>
-                <p class="upload-hint">Drag &amp; drop your diagram or <span class="hint-cta">browse files</span></p>
+                <p class="upload-hint">Drag &amp; drop your diagram or <span class="hint-cta">click to upload</span></p>
+
                 <div id="file-name" class="file-chip"></div>
+                
                 <input type="file" id="imageInput" accept="image/*" />
-                <button class="btn-main" id="uploadBtn">
-                    <span class="btn-arrow" id="btn-icon">→</span>
-                    <span id="btn-text">Analyze Circuit</span>
-                </button>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" />
+                
                 <div id="error-message" class="err-msg" role="alert"></div>
                 <div class="loader" id="loader">
                     <div class="loader-track"><div class="loader-fill"></div></div>
                     <span class="loader-txt">Analyzing circuit…</span>
                 </div>
             </div>
+        </div>
+
+        <div class="analyze-action-wrapper">
+            <button class="btn-main" id="uploadBtn">
+                <span class="btn-arrow" id="btn-icon">→</span>
+                <span id="btn-text">Analyze Circuit</span>
+            </button>
         </div>
 
         <div class="status-bar" id="status-bar" style="display:none;">
@@ -80,8 +87,37 @@
         </div>
     </section>
 
-    <section class="results-area" id="results-area">
+    <div id="sourceModal" class="modal hidden">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3>Select Image Source</h3>
+            </div>
+            <div class="source-actions">
+                <button id="modalCameraBtn" class="btn-secondary">📸 Camera</button>
+                <button id="modalBrowseBtn" class="btn-secondary">📁 Browse Files</button>
+            </div>
+            <div class="modal-actions modal-center">
+                <button id="closeSourceModalBtn" class="btn-ghost">Cancel</button>
+            </div>
+        </div>
+    </div>
 
+    <div id="cropModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Crop Image</h3>
+            </div>
+            <div class="crop-container">
+                <img id="cropTarget" src="" alt="Crop target">
+            </div>
+            <div class="modal-actions">
+                <button id="cancelCropBtn" class="btn-ghost">Cancel</button>
+                <button id="applyCropBtn" class="btn-main">Apply Crop</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="results-area" id="results-area">
         <div class="result-card" id="section-original">
             <div class="rc-header" onclick="toggleCard(this)" tabindex="0" role="button" aria-expanded="true">
                 <div class="rc-icon rci-blue">
@@ -174,9 +210,9 @@
                 <div id="schemdraw-container"></div>
             </div>
         </div>
-
     </section>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

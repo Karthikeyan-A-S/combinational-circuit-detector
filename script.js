@@ -3,33 +3,23 @@ const DEFAULT_API_URL = "https://xxx.trycloudflare.com/process-circuit";
 const apiUrlInput = document.getElementById('apiUrlInput');
 const apiApplyBtn = document.getElementById('apiApplyBtn');
 
-// Load saved URL from local storage, or fall back to default
 let currentApiUrl = localStorage.getItem('circuitApiUrl') || DEFAULT_API_URL;
 
-// Pre-fill the input box with the active base URL (hiding the endpoint for a cleaner look)
 if (apiUrlInput) {
     apiUrlInput.value = currentApiUrl.replace(/\/process-circuit$/, '');
 }
 
-// Handle the Apply button click
 if (apiApplyBtn && apiUrlInput) {
     apiApplyBtn.addEventListener('click', () => {
         let val = apiUrlInput.value.trim();
-        
         if (!val) {
-            // If empty, reset to default
             currentApiUrl = DEFAULT_API_URL;
             localStorage.removeItem('circuitApiUrl');
         } else {
-            // Auto-append endpoint if missing
-            if (!val.endsWith('/process-circuit')) {
-                val = val.replace(/\/$/, '') + '/process-circuit';
-            }
+            if (!val.endsWith('/process-circuit')) val = val.replace(/\/$/, '') + '/process-circuit';
             currentApiUrl = val;
-            localStorage.setItem('circuitApiUrl', currentApiUrl); // Save for next time
+            localStorage.setItem('circuitApiUrl', currentApiUrl);
         }
-        
-        // Give satisfying visual feedback
         const originalText = apiApplyBtn.textContent;
         apiApplyBtn.textContent = 'Saved!';
         apiApplyBtn.classList.add('success');
@@ -120,23 +110,15 @@ let rawEquations = {};
 
 function setEqMode(mode) {
     eqMode = mode;
-
     document.getElementById('btn-text').classList.toggle('active', mode === 'text');
     document.getElementById('btn-symbol').classList.toggle('active', mode === 'symbol');
-
     const legend = document.getElementById('sym-legend');
     legend.classList.toggle('visible', mode === 'symbol');
-
     renderEquations();
 }
 
-/**
- * Convert a text boolean equation string into HTML with symbols.
- * Handles nested symbols correctly using recursive parsing.
- */
 function toSymbolHtml(eq) {
     if (!eq) return '';
-
     const tokenRegex = /\b(XNOR|xnor|NOR|nor|NAND|nand|XOR|xor|NOT|not|AND|and|OR|or)\b|([A-Za-z_][A-Za-z0-9_]*)|(\(|\))|([=])|(\d+)|([+\-·⊕⊙∧∨¬])/gi;
     const tokens = [];
     let m;
@@ -147,29 +129,21 @@ function toSymbolHtml(eq) {
     function parseExpression(startIdx, endIdx) {
         let out = [];
         let i = startIdx;
-        
         while (i < endIdx) {
             const tok = tokens[i];
             const upper = tok.toUpperCase();
 
-            if (upper === 'AND' || tok === '∧') {
-                out.push('<span class="op-sym"> · </span>');
-            } else if (upper === 'OR' || tok === '∨') {
-                out.push('<span class="op-sym"> + </span>');
-            } else if (upper === 'XOR' || tok === '⊕') {
-                out.push('<span class="op-sym"> ⊕ </span>');
-            } else if (upper === 'XNOR' || tok === '⊙') {
-                out.push('<span class="op-sym"> ⊙ </span>');
-            } else if (upper === 'NAND') {
-                out.push('<span class="op-sym"> NAND </span>'); 
-            } else if (upper === 'NOR') {
-                out.push('<span class="op-sym"> NOR </span>');  
-            } else if (upper === 'NOT' || tok === '¬') {
+            if (upper === 'AND' || tok === '∧') out.push('<span class="op-sym"> · </span>');
+            else if (upper === 'OR' || tok === '∨') out.push('<span class="op-sym"> + </span>');
+            else if (upper === 'XOR' || tok === '⊕') out.push('<span class="op-sym"> ⊕ </span>');
+            else if (upper === 'XNOR' || tok === '⊙') out.push('<span class="op-sym"> ⊙ </span>');
+            else if (upper === 'NAND') out.push('<span class="op-sym"> NAND </span>'); 
+            else if (upper === 'NOR') out.push('<span class="op-sym"> NOR </span>');  
+            else if (upper === 'NOT' || tok === '¬') {
                 let j = i + 1;
                 if (j < endIdx) {
                     if (tokens[j] === '(') {
-                        let depth = 1;
-                        let k = j + 1;
+                        let depth = 1; let k = j + 1;
                         while (k < endIdx && depth > 0) {
                             if (tokens[k] === '(') depth++;
                             if (tokens[k] === ')') depth--;
@@ -183,18 +157,13 @@ function toSymbolHtml(eq) {
                         i = j;
                     }
                 }
-            } else if (tok === '(' || tok === ')') {
-                out.push(escHtml(tok));
-            } else if (tok === '=') {
-                out.push(' = ');
-            } else {
-                out.push(`<span class="eq-var">${escHtml(tok)}</span>`);
-            }
+            } else if (tok === '(' || tok === ')') out.push(escHtml(tok));
+            else if (tok === '=') out.push(' = ');
+            else out.push(`<span class="eq-var">${escHtml(tok)}</span>`);
             i++;
         }
         return out.join('');
     }
-
     return parseExpression(0, tokens.length);
 }
 
@@ -205,19 +174,14 @@ function renderEquations() {
     for (const [label, eq] of Object.entries(rawEquations)) {
         const div = document.createElement('div');
         div.className = 'eq-box';
-
         const lbl = document.createElement('span');
         lbl.className = 'eq-label';
         lbl.textContent = label;
-
         const content = document.createElement('div');
         content.className = 'eq-content';
 
-        if (eqMode === 'symbol') {
-            content.innerHTML = toSymbolHtml(eq);
-        } else {
-            content.textContent = eq;
-        }
+        if (eqMode === 'symbol') content.innerHTML = toSymbolHtml(eq);
+        else content.textContent = eq;
 
         div.appendChild(lbl);
         div.appendChild(content);
@@ -228,6 +192,7 @@ function renderEquations() {
 // ── DOM REFS ──────────────────────────────────────────────────────
 const dropzone     = document.getElementById('dropzone');
 const imageInput   = document.getElementById('imageInput');
+const cameraInput  = document.getElementById('cameraInput');
 const fileChip     = document.getElementById('file-name');
 const uploadBtn    = document.getElementById('uploadBtn');
 const errorMsg     = document.getElementById('error-message');
@@ -235,6 +200,20 @@ const loader       = document.getElementById('loader');
 const btnText      = document.getElementById('btn-text');
 const btnIcon      = document.getElementById('btn-icon');
 const statusBar    = document.getElementById('status-bar');
+
+// Modals
+const sourceModal         = document.getElementById('sourceModal');
+const modalCameraBtn      = document.getElementById('modalCameraBtn');
+const modalBrowseBtn      = document.getElementById('modalBrowseBtn');
+const closeSourceModalBtn = document.getElementById('closeSourceModalBtn');
+
+const cropModal     = document.getElementById('cropModal');
+const cropTarget    = document.getElementById('cropTarget');
+const applyCropBtn  = document.getElementById('applyCropBtn');
+const cancelCropBtn = document.getElementById('cancelCropBtn');
+
+let cropper = null;
+let finalImageBlob = null; 
 
 const ALL_SECTIONS = ['original','equations','truthtable','graph','schemdraw']
     .map(id => document.getElementById(`section-${id}`));
@@ -254,20 +233,29 @@ function showCard(id, delay = 0) {
     card.style.display = 'block';
 }
 
-// ── DRAG & DROP ───────────────────────────────────────────────────
-dropzone.addEventListener('click', e => {
-    // Open file dialog when clicking the dropzone (but not the upload button)
-    if (e.target !== uploadBtn && !uploadBtn.contains(e.target)) imageInput.click();
+// ── MODAL WORKFLOW & DRAG/DROP ────────────────────────────────────
+
+// Click the main upload box to open source selector modal
+dropzone.addEventListener('click', () => {
+    sourceModal.classList.remove('hidden');
 });
 
-imageInput.addEventListener('change', () => {
-    if (imageInput.files.length > 0) {
-        fileChip.textContent = `📎  ${imageInput.files[0].name}`;
-        clearErr();
-    }
+// Modal Actions
+closeSourceModalBtn.addEventListener('click', () => {
+    sourceModal.classList.add('hidden');
 });
 
-// Make the entire document accept file drops
+modalBrowseBtn.addEventListener('click', () => {
+    sourceModal.classList.add('hidden');
+    imageInput.click();
+});
+
+modalCameraBtn.addEventListener('click', () => {
+    sourceModal.classList.add('hidden');
+    cameraInput.click();
+});
+
+// Drag & Drop
 document.addEventListener('dragover', e => { 
     e.preventDefault(); 
     dropzone.classList.add('dragover'); 
@@ -283,19 +271,60 @@ document.addEventListener('dragleave', e => {
 document.addEventListener('drop', e => {
     e.preventDefault();
     dropzone.classList.remove('dragover');
-    
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        imageInput.files = e.dataTransfer.files;
-        fileChip.textContent = `📎  ${imageInput.files[0].name}`;
-        clearErr();
+        handleImageFile(e.dataTransfer.files[0]);
     }
 });
 
-// ── MAIN HANDLER ──────────────────────────────────────────────────
+// File Selection Listeners
+imageInput.addEventListener('change', e => { if (e.target.files.length) handleImageFile(e.target.files[0]); });
+cameraInput.addEventListener('change', e => { if (e.target.files.length) handleImageFile(e.target.files[0]); });
+
+function handleImageFile(file) {
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    cropTarget.src = url;
+    cropModal.classList.remove('hidden');
+
+    if (cropper) { cropper.destroy(); }
+    
+    // Initialize Cropper
+    cropper = new Cropper(cropTarget, {
+        viewMode: 1,
+        autoCropArea: 0.9,
+        background: false
+    });
+
+    imageInput.value = '';
+    cameraInput.value = '';
+}
+
+cancelCropBtn.addEventListener('click', () => {
+    cropModal.classList.add('hidden');
+    if (cropper) cropper.destroy();
+});
+
+applyCropBtn.addEventListener('click', () => {
+    if (!cropper) return;
+    
+    cropper.getCroppedCanvas().toBlob((blob) => {
+        finalImageBlob = blob;
+        fileChip.textContent = `📎 circuit_ready.png`;
+        clearErr();
+        cropModal.classList.add('hidden');
+        cropper.destroy();
+        cropper = null;
+    }, 'image/png');
+});
+
+// ── MAIN UPLOAD HANDLER ───────────────────────────────────────────
 uploadBtn.addEventListener('click', async e => {
     e.stopPropagation();
-    const file = imageInput.files[0];
-    if (!file) { showErr('⚠  Please select or drop an image first.'); return; }
+    
+    if (!finalImageBlob) { 
+        showErr('⚠  Please select or snap an image first.'); 
+        return; 
+    }
 
     clearErr();
     setBtnState('loading');
@@ -303,7 +332,7 @@ uploadBtn.addEventListener('click', async e => {
     statusBar.style.display = 'none';
     rawEquations = {};
 
-    const objURL = URL.createObjectURL(file);
+    const objURL = URL.createObjectURL(finalImageBlob);
     document.getElementById('original-img').src = objURL;
     showCard('original');
     statusBar.style.display = 'flex';
@@ -314,10 +343,9 @@ uploadBtn.addEventListener('click', async e => {
     }, 200);
 
     const form = new FormData();
-    form.append('image', file);
+    form.append('image', finalImageBlob, 'circuit.png');
 
     try {
-        // Fetch from the active API URL
         const res = await fetch(currentApiUrl, { method: 'POST', body: form });
         if (!res.ok) throw new Error(`Server error ${res.status}.`);
         const data = await res.json();
