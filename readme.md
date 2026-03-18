@@ -2,6 +2,8 @@
 
 > Upload or snap a photo of a hand-drawn combinational logic circuit and instantly extract Boolean equations, truth tables, gate graphs, and clean schematics.
 
+🌐 **Live Demo:** [CircuitIQ Web App](https://karthikeyan-a-s.github.io/combinational-circuit-detector/)
+
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-2.x-000000?style=flat&logo=flask)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-00BFFF?style=flat)
